@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const server_1 = __importDefault(require("../classes/server"));
+const sockets_1 = require("../sockets/sockets");
 const router = express_1.Router();
 router.get('/mensajes', (req, res) => {
     res.json({
@@ -44,6 +45,30 @@ router.post('/mensajes/:id', (req, res) => {
         cuerpo,
         de,
         id
+    });
+});
+// Servicio para obtener todos los id de los usuarios
+router.get('/usuarios', (req, res) => {
+    const server = server_1.default.instance;
+    server.io.allSockets()
+        .catch((err) => {
+        return res.json({
+            ok: false,
+            err
+        });
+    })
+        .then((clientes) => {
+        return res.json({
+            ok: true,
+            clientes: Array.from(clientes)
+        });
+    });
+});
+// Obtener usuarios y sus nombres
+router.get('/usuarios/detalle', (req, res) => {
+    return res.json({
+        ok: true,
+        clientes: sockets_1.usuariosConectados.getLista()
     });
 });
 exports.default = router;
